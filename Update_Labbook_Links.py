@@ -89,24 +89,3 @@ status = confluence.update_page(
     title=content2['title'],
     body=zoot
 )
-
-# content2 = confluence.get_page_by_id(page_id=pageId, expand='space,body.view,version')
-
-# # print(content2['body']['view']['value'])
-
-# newText="[This is an internal Link|CW:CFIN-a-thon]"
-
-# newText = "<ac:link><ri:page ri:space-key=\"CW\" ri:content-title=\"CFIN-a-thon\" /><ac:link-body>This is an internal link to another space</ac:link-body></ac:link>"
-# soupier = BeautifulSoup(newText, 'html.parser')
-# for a in soupier.findAll('ac:link'):
-#     print(a)
-
-# # newText = "<p><br/></p><p><br/></p><p><a href='/display/CW/CFIN-a-thon'>This is an internal link</a></p><p><br/></p><p><a class='\"internal-link\"' href='/display/CW/CFIN-a-thon\' rel='\"nofollow\"'>This is an external link</a></p>"
-# status = confluence.update_page(
-#     parent_id=None,
-#     page_id=pageId,
-#     title=pageTitle,
-#     body=newText
-# )
-# #print(result)
-# #print(status)
