@@ -9,10 +9,18 @@ Confluence Labbook rest api code for updating wiki
 ```
 pip install -r requirements.txt
 ```
-3. something
+3. Update labbook page(s)
+
+If you want to update a specific page, run the script and parse the page id
 ```
-something
+python update_labbook_links_lp.py --page 123451234
 ```
+
+If you want to loop over all pages (NOT IMPLEMENTED YET)
+```
+python update_labbook_links_lp.py --page all
+```
+
 *Note:* If you want to update user links while running, make sure to create a csv file named `user_mapping.csv` which contains old wiki users in the first column and auIDs for labbook in the second column. 
 
 
