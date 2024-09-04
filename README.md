@@ -36,3 +36,9 @@ optional:
 ├── requirements.txt
 └── update_labbook_links_lp.py
 ```
+
+
+## Notes
+* Instead of linking to a page with user information, we link to the labbook profile of the user
+* Previous category pages are turned into labels -> the in-text references to the categories are still kept, but the link goes to a page showing all pages with that label
+    * Some categories contain spaces, which is not allowed for labels (they will be split into two e.g., "project" "initiation"). Therefore, we update the label to be "project_initiation"
