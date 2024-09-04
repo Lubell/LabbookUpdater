@@ -2,16 +2,9 @@
 This script holds the code for updating links in the CFIN/MIB wiki-pages when moving to Labbook.
 
 TODO:
-- [ ] make sure missing pages are logged
 - [ ] add status checker when updating page
-- [x] seems like labels can only be one word - e.g. no spaces? deal with this. CURRENT SOLUTION = replace spaces with underscores
-- [x] update anchor links
-- [x] figure out what to do with special pages (e.g. old categories that turned into labels now)
-- [x] update links to users (mapping between users on the old wiki and the new wiki are to made)
-    - [ ] Question: do we want to link to labbook account page or rather a CFIN/MIB page where the user is described?
 - [ ] templates?
-- [ ] attachments
-- [ ] loop over pages instead of providing page_id
+- [ ] attachments?
 - [ ] document code
     - [ ] doc strings
     - [ ] usage guide in README
@@ -25,7 +18,7 @@ import argparse
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--page", type = str, default="282463945")
+    parser.add_argument("--page", type = str, default="282464029")
 
     return parser.parse_args()
 
@@ -34,7 +27,7 @@ def read_token():
     token_path = Path(__file__).parents[0] / "token.txt"
 
     if not token_path.exists():
-        raise FileNotFoundError("Make sure token.txt and fill in your Labbook bearer token")
+        raise FileNotFoundError("Make sure token.txt exists and fill in your Labbook bearer token")
     
     with open(Path(__file__).parents[0] / "token.txt", "r") as f:
         token = f.read()
@@ -50,8 +43,16 @@ def get_page_body(confluence, page_id):
 def parse_as_html(page_body):
     return BeautifulSoup(page_body, 'html.parser')
 
-def log_missing_pages():
-    pass
+def log_missing_pages(title):
+    logging_path = Path(__file__).parent / "missing_pages.txt"
+
+    if not logging_path.exists():
+        with open(logging_path , "x") as f:
+            f.write(title)
+
+    else:
+        with open(logging_path , "a") as f:
+            f.write("\n" + title)
 
 def check_status():
     # 200 is good
@@ -90,6 +91,8 @@ def update_links_to_old_wiki(soup, page_body):
             base_url = "http://wiki.pet.auh.dk/wiki/"
         elif url.find("http://10.3.148.104/wiki/")!= -1:
             base_url = "http://10.3.148.104/wiki/"
+        elif url.find("http://10.3.148.104/mediawiki/")!= -1:
+            base_url = "http://10.3.148.104/mediawiki/"
         else: 
             continue # move on to next link if none of the links exists
         title = url[len(base_url):]
@@ -124,7 +127,7 @@ def update_links_to_old_wiki(soup, page_body):
             labbook_user = user_mapping.loc[user_mapping["wiki_user"] == user]["labbook_user"]
             
             if len(labbook_user) != 0:
-                new_text_tmp = f"https://labbook.au.dk/display/~{labbook_user}" #if we want to link to peoples own profiles. Or would we rather link to a page about each person in the wiki?      
+                new_text_tmp = f"https://labbook.au.dk/display/~{labbook_user}" # linking to peoples profiles    
             else:
                 continue
         
@@ -132,13 +135,23 @@ def update_links_to_old_wiki(soup, page_body):
         elif "#" in new_title:
             main_page, anchor = new_title.split("#")
             new_text_tmp = format_internal_anchor_links(page_title=main_page, anchor=anchor, text=a.text)
+            
+            # check if page exists
+            if not confluence.page_exists(space="CW", title=new_title, type=None):
+                log_missing_pages(new_title)
 
         # THE REST
         else:
             new_text_tmp = format_internal_links(page_title=new_title, text=a.text)
+            
+            # check if page exists
+            if not confluence.page_exists(space="CW", title=new_title, type=None):
+                log_missing_pages(new_title)
 
         indices.append(a.sourcepos)
         new_text.append(new_text_tmp)
+
+
 
     if len(indices) == 0: # if no links are to be updated, return None instead of new page body and labels
         return None, None
@@ -203,15 +216,8 @@ def update_page(body:str, title:str, page_id:str, confluence:Confluence, labels:
     print(f"status page update {status}.")
 
 
-def single_page_update(page_id:str):
-    
-    token = read_token()
-    
-    confluence = Confluence(
-        url='https://labbook.au.dk/',
-        token=token
-        )
-    
+def single_page_update(confluence, page_id:str):
+
     page_body, page_title = get_page_body(confluence, page_id)
     soup = parse_as_html(page_body)
     
@@ -226,18 +232,32 @@ def single_page_update(page_id:str):
         #update_page(body=new_page_body, title=page_title, page_id=page_id, confluence=confluence, labels = labels)
 
 
-def all_pages_update():
-    pass
+def all_pages_update(confluence, spacekey = "CW"):
+    for i in range(0,400,100): # looping over pages from space
+        # limit at 100 # limit will only return what is needed and not error if and excess is called
+        pages = confluence.get_all_pages_from_space(spacekey, start=i, limit=100, status=None, expand=None, content_type='page')
+        # loop through and get each page
+        for pg in pages:
+            page_id = pg['id']
+            #single_page_update(confluence, page_id=page_id)
+            
 
 if __name__ in "__main__":
     args = parse_args()
     print(args)
+  
+    token = read_token()
     
+    confluence = Confluence(
+        url='https://labbook.au.dk/',
+        token=token
+        )
 
+    
     if args.page == "all":
-        pass
         # MAKE SURE EVERYTHING IS TESTED THROUGHLY BEFORE RUNNING LINE BELOW!
-        # all_pages_update()
+        # all_pages_update(confluence)
+        pass
 
     else:
-        single_page_update(page_id = args.page)
+        single_page_update(confluence, page_id = args.page)
