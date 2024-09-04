@@ -7,7 +7,8 @@ TODO:
 - [x] seems like labels can only be one word - e.g. no spaces? deal with this. CURRENT SOLUTION = replace spaces with underscores
 - [x] update anchor links
 - [x] figure out what to do with special pages (e.g. old categories that turned into labels now)
-- [ ] update links to users (mapping between users on the old wiki and the new wiki are to made)
+- [x] update links to users (mapping between users on the old wiki and the new wiki are to made)
+    - [ ] Question: do we want to link to labbook account page or rather a CFIN/MIB page where the user is described?
 - [ ] templates?
 - [ ] attachments
 - [ ] loop over pages instead of providing page_id
@@ -19,8 +20,16 @@ from pathlib import Path
 from atlassian import Confluence
 from bs4 import BeautifulSoup
 import pandas as pd
+import argparse
 
-# reading in token
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--page", type = str, default="282463945")
+
+    return parser.parse_args()
+
+
 def read_token():
     token_path = Path(__file__).parents[0] / "token.txt"
 
@@ -87,6 +96,8 @@ def update_links_to_old_wiki(soup, page_body):
         
         new_title = update_page_title(title)
 
+
+        # CATEGORIES -> now labels
         if "Category:" in new_title:
             label = new_title[len("Category:"):]
 
@@ -99,26 +110,30 @@ def update_links_to_old_wiki(soup, page_body):
         
         elif "Special:Categories" in new_title: 
             new_text_tmp = '<p><a href="https://labbook.au.dk/labels/listlabels-alphaview.action?key=CW">Categories</a></p>'
+        
 
+        # USER PAGES
         elif "User:" in new_title: 
             user = new_title.split("User:")[-1]
             try: 
-                user_mapping = pd.read_csv("user_mapping.csv", names = ["wiki_user", "labbook_user"])
+                user_mapping = pd.read_csv(Path(__file__).parent / "user_mapping.csv", names = ["wiki_user", "labbook_user"])
             except(FileNotFoundError):
-                print("No user-mapping file found, ignoring user link")
+                print("No user-mapping file found, ignoring user link.")
                 continue
             
             labbook_user = user_mapping.loc[user_mapping["wiki_user"] == user]["labbook_user"]
             
             if len(labbook_user) != 0:
-                new_text_tmp = f"https://labbook.au.dk/display/~{labbook_user}" #if we want to link to peoples own profiles? Or would we rather link to a page about each person in the wiki?      
+                new_text_tmp = f"https://labbook.au.dk/display/~{labbook_user}" #if we want to link to peoples own profiles. Or would we rather link to a page about each person in the wiki?      
             else:
                 continue
         
-        elif "#" in new_title: # anchor links
+        # ANCHOR LINKS
+        elif "#" in new_title:
             main_page, anchor = new_title.split("#")
             new_text_tmp = format_internal_anchor_links(page_title=main_page, anchor=anchor, text=a.text)
 
+        # THE REST
         else:
             new_text_tmp = format_internal_links(page_title=new_title, text=a.text)
 
@@ -208,11 +223,21 @@ def single_page_update(page_id:str):
         new_page_body = new_page_body.replace('/li>','</li>')
         new_page_body = new_page_body.replace('<</li>','</li>')
 
-        update_page(body=new_page_body, title=page_title, page_id=page_id, confluence=confluence, labels = labels)
+        #update_page(body=new_page_body, title=page_title, page_id=page_id, confluence=confluence, labels = labels)
 
 
 def all_pages_update():
     pass
 
 if __name__ in "__main__":
-    single_page_update(page_id = "282463945")
+    args = parse_args()
+    print(args)
+    
+
+    if args.page == "all":
+        pass
+        # MAKE SURE EVERYTHING IS TESTED THROUGHLY BEFORE RUNNING LINE BELOW!
+        # all_pages_update()
+
+    else:
+        single_page_update(page_id = args.page)
