@@ -9,7 +9,12 @@ Confluence Labbook rest api code for updating wiki
 ```
 pip install -r requirements.txt
 ```
-3. Update labbook page(s)
+3. Download attachments from old wiki (except for files larger than 40 mb as they exceed the file size limit for Labbook)
+```
+python download_attachments_old_wiki.py
+```
+
+4. Update labbook page(s)
 
 If you want to update a specific page, run the script and parse the page id
 ```
@@ -22,9 +27,6 @@ python update_labbook_links_lp.py --page all
 ```
 
 *Note:* If you want to update user links while running, make sure to create a csv file named `user_mapping.csv` which contains old wiki users in the first column and auIDs for labbook in the second column. 
-
-
-optional:
 
 
 ## 🗂️ Repository structure
