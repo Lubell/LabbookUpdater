@@ -71,7 +71,7 @@ def update_page_title(title):
 
 def format_attachment_links(filename):
     template = None
-    if filename.endswith(".png") or filename.endswith(".jpg"):
+    if filename.endswith(".png") or filename.endswith(".PNG") or filename.endswith(".jpg"):
         template = (
             '<p><ac:image ac:thumbnail="true" ac:height="250"><ri:attachment ri:filename="{filename}" /></ac:image></p>'
         )
@@ -80,12 +80,11 @@ def format_attachment_links(filename):
         template = (
             '<p><span class="mw-headline"><ac:link><ri:attachment ri:filename="{filename}" /></ac:link></span></p>'
         )
-    elif filename.endswith(".docx"):
+    elif filename.endswith(".docx") or filename.endswith(".zip") or filename.endswith(".dmg") or filename.endswith(".doc"):
         template = (
             '<p><ac:link><ri:attachment ri:filename="{filename}" /></ac:link></p>'
         )
 
-    
     if template:
         return template.format(filename = filename)
     else:
