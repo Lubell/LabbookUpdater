@@ -11,3 +11,5 @@ HISTORY.txt
 README.txt
 token.txt
 user_mapping.csv
+attachments/*
+.DS_Store
