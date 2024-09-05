@@ -31,8 +31,6 @@ def get_page_body(confluence, page_id):
 def parse_as_html(page_body):
     return BeautifulSoup(page_body, 'html.parser')
 
-
-
 def check_for_media(title):
 
     types = ["File:", "Media:"]
@@ -46,8 +44,10 @@ def check_for_media(title):
 def check_attachments(soup):
 
     for a in soup.findAll('a'): # find all "a" tags (links)
-
-        url = a['href']
+        try:
+            url = a['href']
+        except:
+            continue
 
         if url.find("http://wiki.pet.auh.dk/wiki/") != -1: # if the specified url exists (-1 = not found)
             base_url = "http://wiki.pet.auh.dk/wiki/"
@@ -134,9 +134,7 @@ if __name__ in "__main__":
         token=token
         )
 
-    check_all_pages_for_attachments(confluence, [0], limit = 100)
-
-    #check_single_page_for_attachments(confluence, page_id = "282463220")
+    check_all_pages_for_attachments(confluence)
 
 
 
