@@ -18,12 +18,12 @@ python download_attachments_old_wiki.py
 
 If you want to update a specific page, run the script and parse the page id
 ```
-python update_labbook_links_lp.py --page 123451234
+python update_labbook_links.py --page 123451234
 ```
 
 If you want to loop over all pages (NOT IMPLEMENTED YET)
 ```
-python update_labbook_links_lp.py --page all
+python update_labbook_links.py --page all
 ```
 
 *Note:* If you want to update user links while running, make sure to create a csv file named `user_mapping.csv` which contains old wiki users in the first column and auIDs for labbook in the second column. 
@@ -44,3 +44,5 @@ python update_labbook_links_lp.py --page all
 * Instead of linking to a page with user information, we link to the labbook profile of the user
 * Previous category pages are turned into labels -> the in-text references to the categories are still kept, but the link goes to a page showing all pages with that label
     * Some categories contain spaces, which is not allowed for labels (they will be split into two e.g., "project" "initiation"). Therefore, we update the label to be "project_initiation"
+* Some media/files from the old wiki exceed the limit on Labbook. As of now the links still point to the old media. 
+* The attachments may have more file-endings than there are currently defined templates for. Check the `format_attachment_links` function in `update_labbook_links.py`
