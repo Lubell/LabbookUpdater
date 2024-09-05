@@ -108,17 +108,17 @@ def check_single_page_for_attachments(confluence, page_id:str):
     check_attachments(soup)
 
 
-def check_all_pages_for_attachments(confluence, loopover = range(0,400,100), limit = 100,  spacekey = "CW"):
+def check_all_pages_for_attachments(confluence, loopover = range(0, 500, 100), limit = 100,  spacekey = "CW"):
     # limit at 100 # limit will only return what is needed and not error if and excess is called
     
     for i in loopover: # looping over pages from space
 
-        pages = confluence.get_all_pages_from_space(spacekey, start=i, limit=100, status=None, expand=None, content_type='page')
+        pages = confluence.get_all_pages_from_space(spacekey, start=i, limit=limit, status=None, expand=None, content_type='page')
         
         # loop through and get each page
         for pg in pages:
             check_single_page_for_attachments(confluence, page_id=pg['id'])
-            
+
 
 if __name__ in "__main__":
 
@@ -135,7 +135,6 @@ if __name__ in "__main__":
         )
 
     check_all_pages_for_attachments(confluence)
-
 
 
 

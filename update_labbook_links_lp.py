@@ -18,7 +18,7 @@ import argparse
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--page", type = str, default="282464029")
+    parser.add_argument("--page", type = str, default="282463220")
 
     return parser.parse_args()
 
@@ -69,7 +69,70 @@ def update_page_title(title):
     return title.replace("_"," ")
 
 
-def update_links_to_old_wiki(soup, page_body):
+def format_attachment_links(filename):
+    template = None
+    if filename.endswith(".png") or filename.endswith(".jpg"):
+        template = (
+            '<p><ac:image ac:thumbnail="true" ac:height="250"><ri:attachment ri:filename="{filename}" /></ac:image></p>'
+        )
+
+    elif filename.endswith(".pdf"):
+        template = (
+            '<p><span class="mw-headline"><ac:link><ri:attachment ri:filename="{filename}" /></ac:link></span></p>'
+        )
+    elif filename.endswith(".docx"):
+        template = (
+            '<p><ac:link><ri:attachment ri:filename="{filename}" /></ac:link></p>'
+        )
+
+    
+    if template:
+        return template.format(filename = filename)
+    else:
+        print(f"file ending {filename.split('.')[-1]} not supported")
+        return None
+
+
+
+def format_internal_anchor_links(page_title, anchor, text):
+    link_template = (
+        '<ac:link ac:anchor="{anchor}"><ri:page ri:space-key="CW" ri:content-title="{title}" />'
+        '<ac:plain-text-link-body><![CDATA[{text}]]></ac:plain-text-link-body></ac:link>'
+        )
+    return link_template.format(anchor = anchor, title=page_title, text=text)
+
+def format_internal_links(page_title, text):
+    link_template = (
+                '<ac:link><ri:page ri:space-key="CW" ri:content-title="{title}" />'
+                '<ac:plain-text-link-body><![CDATA[{text}]]></ac:plain-text-link-body></ac:link>'
+            )
+    return link_template.format(title=page_title, text=text)
+
+
+def add_page_labels(labels, confluence, page_id):
+    for label in labels:
+        confluence.set_page_label(page_id, label)
+    
+    return confluence
+
+
+def update_page(body:str, title:str, page_id:str, confluence:Confluence, labels:list):
+
+    if len(labels) > 0:
+        confluence = add_page_labels(labels, confluence, page_id)
+    
+    status = confluence.update_page(
+        parent_id=None,
+        page_id=page_id,
+        title=title,
+        body=body
+    )
+
+
+    print(f"status page update {status}.")
+
+
+def update_links_to_old_wiki(soup, page_body, page_id):
     """
     parameters
     ----------
@@ -99,9 +162,29 @@ def update_links_to_old_wiki(soup, page_body):
         
         new_title = update_page_title(title)
 
+        # ATTACHMENTS
+        if "File:" in title or "Media:" in title or "mediawiki" in url:
+            if "File:" in title:
+                filename = title[len("File:"):]
+            elif "Media:" in title:
+                filename = title[len("Media:"):]
+            else:
+                filename = url.split("/")[-1]
+
+            file_path = Path(__file__).parent / "attachments" / filename
+            # see if file exists in attachment folder
+            if not file_path.exists():
+                print(f"cannot file {file_path}")
+                continue
+
+            confluence.attach_file(file_path, page_id = page_id)
+            new_text_tmp = format_attachment_links(filename)
+
+            if new_text_tmp == None:
+                continue
 
         # CATEGORIES -> now labels
-        if "Category:" in new_title:
+        elif "Category:" in new_title:
             label = new_title[len("Category:"):]
 
             # labels cannot contain spaces, therefore replace spaces with _
@@ -177,74 +260,37 @@ def update_links_to_old_wiki(soup, page_body):
     return new_body, labels
 
 
-
-def format_internal_anchor_links(page_title, anchor, text):
-    link_template = (
-        '<ac:link ac:anchor="{anchor}"><ri:page ri:space-key="CW" ri:content-title="{title}" />'
-        '<ac:plain-text-link-body><![CDATA[{text}]]></ac:plain-text-link-body></ac:link>'
-        )
-    return link_template.format(anchor = anchor, title=page_title, text=text)
-
-def format_internal_links(page_title, text):
-    link_template = (
-                '<ac:link><ri:page ri:space-key="CW" ri:content-title="{title}" />'
-                '<ac:plain-text-link-body><![CDATA[{text}]]></ac:plain-text-link-body></ac:link>'
-            )
-    return link_template.format(title=page_title, text=text)
-
-
-def add_page_labels(labels, confluence, page_id):
-    for label in labels:
-        confluence.set_page_label(page_id, label)
-    
-    return confluence
-
-
-def update_page(body:str, title:str, page_id:str, confluence:Confluence, labels:list):
-
-    if len(labels) > 0:
-        confluence = add_page_labels(labels, confluence, page_id)
-    
-    status = confluence.update_page(
-        parent_id=None,
-        page_id=page_id,
-        title=title,
-        body=body
-    )
-
-
-    print(f"status page update {status}.")
-
-
 def single_page_update(confluence, page_id:str):
 
     page_body, page_title = get_page_body(confluence, page_id)
     soup = parse_as_html(page_body)
     
 
-    new_page_body, labels = update_links_to_old_wiki(soup, page_body)
+    new_page_body, labels = update_links_to_old_wiki(soup, page_body, page_id)
     if new_page_body == None:# if no links needing updates were found
         print(f"No links needing update found - labbook page {page_id} not updated")
     else:
         new_page_body = new_page_body.replace('/li>','</li>')
         new_page_body = new_page_body.replace('<</li>','</li>')
+        new_page_body = new_page_body.replace('/p>','</p>')
+        new_page_body = new_page_body.replace('<</p>','</p>')
 
-        #update_page(body=new_page_body, title=page_title, page_id=page_id, confluence=confluence, labels = labels)
+        update_page(body=new_page_body, title=page_title, page_id=page_id, confluence=confluence, labels = labels)
 
 
 def all_pages_update(confluence, spacekey = "CW"):
-    for i in range(0,400,100): # looping over pages from space
+    for i in range(0,500,100): # looping over pages from space
+       
         # limit at 100 # limit will only return what is needed and not error if and excess is called
         pages = confluence.get_all_pages_from_space(spacekey, start=i, limit=100, status=None, expand=None, content_type='page')
+        
         # loop through and get each page
         for pg in pages:
             page_id = pg['id']
             #single_page_update(confluence, page_id=page_id)
             
-
 if __name__ in "__main__":
     args = parse_args()
-    print(args)
   
     token = read_token()
     
@@ -256,8 +302,7 @@ if __name__ in "__main__":
     
     if args.page == "all":
         # MAKE SURE EVERYTHING IS TESTED THROUGHLY BEFORE RUNNING LINE BELOW!
-        # all_pages_update(confluence)
-        pass
+        all_pages_update(confluence)
 
     else:
         single_page_update(confluence, page_id = args.page)
