@@ -1,13 +1,9 @@
 """
 This script holds the code for updating links in the CFIN/MIB wiki-pages when moving to Labbook.
 
-TODO:
-- [ ] add status checker when updating page
-- [ ] templates?
-- [ ] attachments?
-- [ ] document code
-    - [ ] doc strings
-    - [ ] usage guide in README
+- Make sure to run the download_attachments_old_wiki.py if you want to update attachments
+- Create user_mapping.csv with usernames from the old wiki in the first column and AU-IDs in the second column
+
 """
 from pathlib import Path
 from atlassian import Confluence
@@ -53,10 +49,6 @@ def log_missing_pages(title):
     else:
         with open(logging_path , "a") as f:
             f.write("\n" + title)
-
-def check_status():
-    # 200 is good
-    pass
 
 def update_page_title(title):
     """
@@ -286,7 +278,8 @@ def all_pages_update(confluence, spacekey = "CW"):
         # loop through and get each page
         for pg in pages:
             single_page_update(confluence, page_id=pg['id'])
-            
+
+
 if __name__ in "__main__":
     args = parse_args()
   
@@ -298,7 +291,6 @@ if __name__ in "__main__":
         )
     
     if args.page == "all":
-        # MAKE SURE EVERYTHING IS TESTED THROUGHLY BEFORE RUNNING LINE BELOW!
         all_pages_update(confluence)
 
     else:
