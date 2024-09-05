@@ -1,15 +1,10 @@
-# REMEMBER TO ADD CHECKER FOR FILE SIZE!!
-
 """
-ADD CHECKER FOR FILE SIZE!!!
+This script finds links in the labbook pages to files and media from the old wiki. It creates an "attachment" folder and downloads the files to that folder - if they do not exceed 42 mb
 """
 from pathlib import Path
 from atlassian import Confluence
 from bs4 import BeautifulSoup
-import pandas as pd
-import argparse
 import requests
-
 
 def read_token():
     token_path = Path(__file__).parents[0] / "token.txt"
@@ -87,7 +82,7 @@ def check_attachments(soup):
                 else:
                     r = requests.get(url, allow_redirects=True)
 
-                MAX_SIZE = 42 * 1000000 # testing with smaller files for now (42 normally)
+                MAX_SIZE = 42 * 1000000 
                 try:
                     if int(r.headers.get("Content-length")) < MAX_SIZE:
                         with open(file_path, "wb") as f:
