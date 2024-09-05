@@ -285,8 +285,7 @@ def all_pages_update(confluence, spacekey = "CW"):
         
         # loop through and get each page
         for pg in pages:
-            page_id = pg['id']
-            #single_page_update(confluence, page_id=page_id)
+            single_page_update(confluence, page_id=pg['id'])
             
 if __name__ in "__main__":
     args = parse_args()
@@ -297,7 +296,6 @@ if __name__ in "__main__":
         url='https://labbook.au.dk/',
         token=token
         )
-
     
     if args.page == "all":
         # MAKE SURE EVERYTHING IS TESTED THROUGHLY BEFORE RUNNING LINE BELOW!
