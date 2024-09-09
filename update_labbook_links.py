@@ -189,7 +189,7 @@ def update_links_to_old_wiki(soup, page_body, page_id):
             new_text_tmp = f'<p><a href="https://labbook.au.dk/label/CW/{label}">{label}</a></p>'
         
         elif "Special:Categories" in new_title: 
-            new_text_tmp = '<p><a href="https://labbook.au.dk/labels/listlabels-alphaview.action?key=CW">Categories</a></p>'
+            new_text_tmp = '<a href="https://labbook.au.dk/labels/listlabels-alphaview.action?key=CW">Categories</a>'
         
 
         # USER PAGES
