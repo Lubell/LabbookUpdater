@@ -31,8 +31,8 @@ def read_token():
     return token
         
 
-def get_page_body(confluence, page_id):
-    page_content = confluence.get_page_by_id(page_id, expand='space,body.storage,version')
+def get_page_body(confluence, page_id, version = None):
+    page_content = confluence.get_page_by_id(page_id, expand='space,body.storage,version', version = version)
 
     return page_content['body']['storage']['value'], page_content["title"]
 
@@ -63,16 +63,17 @@ def update_page_title(title):
 
 def format_attachment_links(filename):
     template = None
-    if filename.endswith(".png") or filename.endswith(".PNG") or filename.endswith(".jpg"):
+    fn_lower = filename.lower()
+    if fn_lower.endswith(".png") or fn_lower.endswith(".jpg"):
         template = (
             '<p><ac:image ac:thumbnail="true" ac:height="250"><ri:attachment ri:filename="{filename}" /></ac:image></p>'
         )
 
-    elif filename.endswith(".pdf"):
+    elif fn_lower.endswith(".pdf"):
         template = (
             '<p><span class="mw-headline"><ac:link><ri:attachment ri:filename="{filename}" /></ac:link></span></p>'
         )
-    elif filename.endswith(".docx") or filename.endswith(".zip") or filename.endswith(".dmg") or filename.endswith(".doc"):
+    elif fn_lower.endswith(".docx") or fn_lower.endswith(".zip") or fn_lower.endswith(".dmg") or fn_lower.endswith(".doc") or fn_lower.endswith(".xlsx") or fn_lower.endswith(".pptx"):
         template = (
             '<p><ac:link><ri:attachment ri:filename="{filename}" /></ac:link></p>'
         )
@@ -107,7 +108,7 @@ def add_page_labels(labels, confluence, page_id):
     return confluence
 
 
-def update_page(body:str, title:str, page_id:str, confluence:Confluence, labels:list):
+def update_page(body:str, title:str, page_id:str, confluence:Confluence, labels:list = []):
 
     if len(labels) > 0:
         confluence = add_page_labels(labels, confluence, page_id)
@@ -138,8 +139,10 @@ def update_links_to_old_wiki(soup, page_body, page_id):
     labels = []
 
     for a in soup.findAll('a'): # find all "a" tags (links)
-
-        url = a['href']
+        try:
+            url = a['href']
+        except:
+            continue
 
         if url.find("http://wiki.pet.auh.dk/wiki/") != -1: # if the specified url exists (-1 = not found)
             base_url = "http://wiki.pet.auh.dk/wiki/"
@@ -165,7 +168,7 @@ def update_links_to_old_wiki(soup, page_body, page_id):
             file_path = Path(__file__).parent / "attachments" / filename
             # see if file exists in attachment folder
             if not file_path.exists():
-                print(f"cannot file {file_path}")
+                print(f"cannot find file {file_path}")
                 continue
 
             confluence.attach_file(file_path, page_id = page_id)
@@ -259,7 +262,8 @@ def single_page_update(confluence, page_id:str):
 
     new_page_body, labels = update_links_to_old_wiki(soup, page_body, page_id)
     if new_page_body == None:# if no links needing updates were found
-        print(f"No links needing update found - labbook page {page_id} not updated")
+        
+        return False
     else:
         new_page_body = new_page_body.replace('/li>','</li>')
         new_page_body = new_page_body.replace('<</li>','</li>')
@@ -267,17 +271,39 @@ def single_page_update(confluence, page_id:str):
         new_page_body = new_page_body.replace('<</p>','</p>')
 
         update_page(body=new_page_body, title=page_title, page_id=page_id, confluence=confluence, labels = labels)
+        return True
 
 
-def all_pages_update(confluence, spacekey = "CW"):
-    for i in range(0,500,100): # looping over pages from space
+def all_pages_update(confluence, spacekey = "CW", version_control = True):
+    if version_control:
+        df = pd.DataFrame()
+
+    for i in range(0, 500, 100): # looping over pages from space
        
         # limit at 100 # limit will only return what is needed and not error if and excess is called
-        pages = confluence.get_all_pages_from_space(spacekey, start=i, limit=100, status=None, expand=None, content_type='page')
+        pages = confluence.get_all_pages_from_space(spacekey, start=i, limit=100, status=None, expand="version", content_type='page')
         
         # loop through and get each page
         for pg in pages:
-            single_page_update(confluence, page_id=pg['id'])
+            page_id = pg['id']
+
+            if version_control:
+                version_before_update = pg["version"]["number"]
+                print(version_before_update)
+            
+            update = single_page_update(confluence, page_id=page_id)
+
+            if not update:
+                print(f"No links needing update found - labbook page {page_id} not updated")
+                continue
+
+            if version_control:
+                new_dat = pd.DataFrame.from_dict({"page_id": [page_id], "v_pre_update": [version_before_update], "v_after_update": [version_before_update+1]})
+                df = pd.concat([df, new_dat])
+
+    if version_control:
+        df.to_csv(Path(__file__).parent / "versions.csv", index=False)
+
 
 
 if __name__ in "__main__":
