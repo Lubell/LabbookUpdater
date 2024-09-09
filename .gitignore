@@ -13,3 +13,5 @@ token.txt
 user_mapping.csv
 attachments/*
 .DS_Store
+__pycache__/*
+versions.csv
