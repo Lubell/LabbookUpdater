@@ -10,6 +10,7 @@ from atlassian import Confluence
 from bs4 import BeautifulSoup
 import pandas as pd
 import argparse
+from atlassian.errors import ApiValueError
 
 
 def parse_args():
@@ -50,6 +51,17 @@ def log_missing_pages(title):
         with open(logging_path , "a") as f:
             f.write("\n" + title)
 
+def log_broken_pages(title):
+    logging_path = Path(__file__).parent / "broken_pages.txt"
+
+    if not logging_path.exists():
+        with open(logging_path , "x") as f:
+            f.write(title)
+
+    else:
+        with open(logging_path , "a") as f:
+            f.write("\n" + title)
+
 def update_page_title(title):
     """
     updates the page title, both for pages that do exist, and redlinks from old wiki   
@@ -71,11 +83,11 @@ def format_attachment_links(filename):
 
     elif fn_lower.endswith(".pdf"):
         template = (
-            '<p><span class="mw-headline"><ac:link><ri:attachment ri:filename="{filename}" /></ac:link></span></p>'
+            '<p><span class="mw-headline"><ac:link><ri:attachment ri:filename="{filename}"/></ac:link></span></p>'
         )
     elif fn_lower.endswith(".docx") or fn_lower.endswith(".zip") or fn_lower.endswith(".dmg") or fn_lower.endswith(".doc") or fn_lower.endswith(".xlsx") or fn_lower.endswith(".pptx"):
         template = (
-            '<p><ac:link><ri:attachment ri:filename="{filename}" /></ac:link></p>'
+            '<p><ac:link><ri:attachment ri:filename="{filename}"/></ac:link></p>'
         )
 
     if template:
@@ -88,17 +100,21 @@ def format_attachment_links(filename):
 
 def format_internal_anchor_links(page_title, anchor, text):
     link_template = (
-        '<ac:link ac:anchor="{anchor}"><ri:page ri:space-key="CW" ri:content-title="{title}" />'
+        '<ac:link ac:anchor="{anchor}"><ri:page ri:space-key="CW" ri:content-title="{title}"/>'
         '<ac:plain-text-link-body><![CDATA[{text}]]></ac:plain-text-link-body></ac:link>'
         )
     return link_template.format(anchor = anchor, title=page_title, text=text)
 
 def format_internal_links(page_title, text):
     link_template = (
-                '<ac:link><ri:page ri:space-key="CW" ri:content-title="{title}" />'
+                '<ac:link><ri:page ri:space-key="CW" ri:content-title="{title}"/>'
                 '<ac:plain-text-link-body><![CDATA[{text}]]></ac:plain-text-link-body></ac:link>'
             )
     return link_template.format(title=page_title, text=text)
+
+def format_user_links(labbook_user, user):
+    link_template = ('<a href="https://labbook.au.dk/display/~{labbook_user}">{user}</a>')
+    return link_template.format(labbook_user=labbook_user, user=user)
 
 
 def add_page_labels(labels, confluence, page_id):
@@ -112,16 +128,13 @@ def update_page(body:str, title:str, page_id:str, confluence:Confluence, labels:
 
     if len(labels) > 0:
         confluence = add_page_labels(labels, confluence, page_id)
-    
+
     status = confluence.update_page(
         parent_id=None,
         page_id=page_id,
         title=title,
         body=body
     )
-
-
-    print(f"status page update {status}.")
 
 
 def update_links_to_old_wiki(soup, page_body, page_id):
@@ -186,7 +199,7 @@ def update_links_to_old_wiki(soup, page_body, page_id):
 
             labels.append(label)
 
-            new_text_tmp = f'<p><a href="https://labbook.au.dk/label/CW/{label}">{label}</a></p>'
+            new_text_tmp = f'<a href="https://labbook.au.dk/label/CW/{label}">{label}</a>'
         
         elif "Special:Categories" in new_title: 
             new_text_tmp = '<a href="https://labbook.au.dk/labels/listlabels-alphaview.action?key=CW">Categories</a>'
@@ -204,7 +217,7 @@ def update_links_to_old_wiki(soup, page_body, page_id):
             labbook_user = user_mapping.loc[user_mapping["wiki_user"] == user]["labbook_user"]
             
             if len(labbook_user) != 0:
-                new_text_tmp = f"https://labbook.au.dk/display/~{labbook_user}" # linking to peoples profiles    
+                new_text_tmp = format_user_links(labbook_user, user)
             else:
                 continue
         
@@ -270,7 +283,11 @@ def single_page_update(confluence, page_id:str):
         new_page_body = new_page_body.replace('/p>','</p>')
         new_page_body = new_page_body.replace('<</p>','</p>')
 
-        update_page(body=new_page_body, title=page_title, page_id=page_id, confluence=confluence, labels = labels)
+        try:
+            update_page(body=new_page_body, title=page_title, page_id=page_id, confluence=confluence, labels = labels)
+        except ApiValueError:
+            log_broken_pages(page_title)
+
         return True
 
 
@@ -279,17 +296,19 @@ def all_pages_update(confluence, spacekey = "CW", version_control = True):
         df = pd.DataFrame()
 
     for i in range(0, 500, 100): # looping over pages from space
+        print(f"Working on i = {i}")
        
         # limit at 100 # limit will only return what is needed and not error if and excess is called
         pages = confluence.get_all_pages_from_space(spacekey, start=i, limit=100, status=None, expand="version", content_type='page')
         
         # loop through and get each page
-        for pg in pages:
+        for pg_idx, pg in enumerate(pages):
             page_id = pg['id']
+            print(f"Working on pg_idx = {pg_idx}, i = {i}")
 
             if version_control:
                 version_before_update = pg["version"]["number"]
-                print(version_before_update)
+                
             
             update = single_page_update(confluence, page_id=page_id)
 
@@ -300,9 +319,8 @@ def all_pages_update(confluence, spacekey = "CW", version_control = True):
             if version_control:
                 new_dat = pd.DataFrame.from_dict({"page_id": [page_id], "v_pre_update": [version_before_update], "v_after_update": [version_before_update+1]})
                 df = pd.concat([df, new_dat])
-
-    if version_control:
-        df.to_csv(Path(__file__).parent / "versions.csv", index=False)
+                df.to_csv(Path(__file__).parent / "versions.csv", index=False)
+        
 
 
 
