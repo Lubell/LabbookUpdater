@@ -1,0 +1,149 @@
+MEG/EEG Landing Page
+Scientific computing basics#The .22environment.22
+%22Help - I need somebody...%22
+Employees
+Software installed at the cluster#MincToolKit
+Tools for Data Analysis#Software Packages
+Main Page
+Main Page
+Making your own User Page
+Special:AllPages
+Making your own User Page
+TestPage/Sandbox for this wiki
+TestPage/Sandbox for this wiki
+Making your own User Page
+Key personnel#PIG Group
+Key personnel#HE support
+Key personnel#HE support
+Key personnel#Leif Ostergaard
+Peter Skaarup
+Key personnel#PIG Group
+Employees
+Recruitment of academic staff of one year%27s duration or more
+Recruitment of academic staff under one year%27s duration
+Recruitment of technical/administrative staff of one year%27s duration or more
+Recruitment of technical/administrative staff under one year%27s duration
+Ethics#Should your study be reported
+Pilot testing
+Introduction to Data Management#Hyades cluster
+Main Page
+STORM DB (database)#display sensitive info
+STORM DB (database)#Privileges
+STORM DB (database)#Changing privileges
+STORM DB (database)#Project folders
+STORM DB (database)#Sensitive info
+STORM DB (database)#Quarantines
+STORM DB (database)#Unquarantine data
+STORM DB (database)#Raw data
+STORM DB (database)#Anonymization
+MEG literature#software
+MEG literature#tutorials
+MEG/EEG Landing Page#Accessing and analyzing data
+Software choices MEG analysis
+Python
+Software installed at the cluster#FSL
+Software installed at the cluster#BrainSuite
+Software installed at the cluster#ITK-snap
+Software installed at the cluster#MNE
+Software installed at the cluster#MincToolKit
+Software installed at the cluster#MRtrix
+Software installed at the cluster#AFNI
+Software installed at the cluster#FreeSurfer
+Software installed at the cluster#dcm2niix
+Pilot testing
+Main Page
+Pilot testing
+Mailing lists#MEEG
+Project planning, initiation and execution at MINDLab / CFIN
+Scanning costs#MEG
+MEG lab videos#Basics of the MEG lab setup
+MEG lab videos#Basics of the MEG lab setup
+Bookings#Booking MRI .2F MEG .2F EEG .2F TMS .2F Behavioural testing rooms
+MEG lab videos#Setting up triggers in the MEG lab
+MEG lab videos#Getting button presses in the MEG lab
+MEG lab videos#Setting up a conda environment on the MEG stimulus PC
+Notebook Scripts#Extract stimulus delay statistics
+Project Initiation#Project initiation steps - obligatory
+Bookings#Booking MRI .2F MEG .2F EEG .2F TMS .2F Behavioural testing rooms
+Software choices MEG analysis
+Project planning, initiation and execution at MINDLab / CFIN
+Institutional Review Board at the DNC#MEG
+Project planning, initiation and execution at MINDLab / CFIN
+MEG lab videos#Basic MEG Acquisition
+MEG lab videos#Basics of leaving the MEG lab and cleaning between participants
+Software choices MEG analysis
+MEG data acquisition#Possible problems during MEG data acquisition
+
+STORM DB (database)#Logging in to the database and selecting project
+Wiki Clean-up 3rd of June 2022#Groups
+Wiki Clean-up 3rd of June 2022#Progress Monitoring
+Spearhead
+Spring Cleaning FAQ
+STORM DB (database)#display sensitive info
+STORM DB (database)#Privileges
+STORM DB (database)#Changing privileges
+STORM DB (database)#Project folders
+STORM DB (database)#Sensitive info
+STORM DB (database)#Quarantines
+STORM DB (database)#Unquarantine data
+STORM DB (database)#Raw data
+STORM DB (database)#Anonymization
+Mailing lists#MEEG
+Project planning, initiation and execution at MINDLab / CFIN
+Scanning costs#MEG
+MEG lab videos#Basics of the MEG lab setup
+MEG lab videos#Basics of the MEG lab setup
+Bookings#Booking MRI .2F MEG .2F EEG .2F TMS .2F Behavioural testing rooms
+MEG lab videos#Setting up triggers in the MEG lab
+MEG lab videos#Getting button presses in the MEG lab
+MEG lab videos#Setting up a conda environment on the MEG stimulus PC
+Notebook Scripts#Extract stimulus delay statistics
+Project Initiation#Project initiation steps - obligatory
+Bookings#Booking MRI .2F MEG .2F EEG .2F TMS .2F Behavioural testing rooms
+Software choices MEG analysis
+Project planning, initiation and execution at MINDLab / CFIN
+Institutional Review Board at the DNC#MEG
+Project planning, initiation and execution at MINDLab / CFIN
+MEG lab videos#Basic MEG Acquisition
+MEG lab videos#Basics of leaving the MEG lab and cleaning between participants
+Software choices MEG analysis
+MEG data acquisition#Possible problems during MEG data acquisition
+Project planning, initiation and execution at MINDLab / CFIN
+STORM DB (database)#Project folders
+STORM DB (database)#Logging in to the database and selecting project
+Project planning, initiation and execution at MINDLab / CFIN
+Project planning, initiation and execution at MINDLab / CFIN#Overview of project initiation workflow
+Working with AU#Reporting projects via AU to the Danish Data Protection Agency .28Datatilsynet.29
+Working with RM#Reporting projects via RM to the Danish Data Protection Agency .28Datatilsynet.29s
+Project planning, initiation and execution at MINDLab / CFIN
+Working with RM#Collaborator Agreement .28Samarbejdsaftale.29
+Working with AU#Collaborator Agreement .28Samarbejdsaftale.29
+Working with RM#Data Processor Agreement .28Databehandleraftale.29
+Working with AU#Data Processor Agreement .28Databehandleraftale.29
+Utility functions for CFIN servers#Python environments .28miniconda-based.29
+Notebook Scripts#StormDB Query
+Scientific computing basics#The .22environment.22
+Utility functions for CFIN servers#Initialise environment for cluster use
+IT infrastructure#Hyades cluster
+Setting up a conda environment
+Scientific computing basics#The .22environment.22
+Utility functions for CFIN servers#Easy navigation between multiple projects
+Notebook Scripts#StormDB Query
+Jupyter notebook#Kernels
+Jupyter notebook#Use on CFIN servers
+Software installed at the cluster#MNE
+Scientific computing basics#The .22environment.22
+Matlab#Available Matlab Toolboxes
+Matlab#Matlab Repository
+Matlab#Existing Code for Matlab
+Remote Desktop Hyades problems#Password accepted.2C but login freezes with black or blue screen
+VPN RegionMidt PIN code#SMS token
+VPN RegionMidt PIN code#Soft token
+VPN RegionMidt PIN code#Hard token
+Scientific computing basics#The PATH-variable
+TPMLS#Show raw line scans
+STORM DB (database)#Logging in to the database and selecting project
+Wiki Clean-up 3rd of June 2022#Groups
+Wiki Clean-up 3rd of June 2022#Progress Monitoring
+Spearhead
+Spring Cleaning FAQ
