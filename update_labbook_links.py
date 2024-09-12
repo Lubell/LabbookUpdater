@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import argparse
 from atlassian.errors import ApiValueError
+from requests.exceptions import HTTPError
 
 
 def parse_args():
@@ -285,7 +286,7 @@ def single_page_update(confluence, page_id:str):
 
         try:
             update_page(body=new_page_body, title=page_title, page_id=page_id, confluence=confluence, labels = labels)
-        except ApiValueError:
+        except(ApiValueError, HTTPError):
             log_broken_pages(page_title)
 
         return True
@@ -304,7 +305,6 @@ def all_pages_update(confluence, spacekey = "CW", version_control = True):
         # loop through and get each page
         for pg_idx, pg in enumerate(pages):
             page_id = pg['id']
-            print(f"Working on pg_idx = {pg_idx}, i = {i}")
 
             if version_control:
                 version_before_update = pg["version"]["number"]
