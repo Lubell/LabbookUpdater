@@ -1,49 +1,15 @@
-Stormdb std Diffusion Pipeline
-Stormdb std Run Module
-MEG Landing Page
-Remote Desktop Hyades
-StormDb upload documents
-Matlab query STORM DB (database)
-Matlab search STORM DB (database)
-Python query STORM DB (database)
-Utility functions for CFIN servers
-Scientific computing basics
-Matlab cluster
 Grid Engine cluster
 Submitting to the cluster using Python
 Using Jupyter Notebooks to visualize data on the remote server
 Software installed at the cluster
-SimNIBS
-Sequence Description - what to write in your paper
-Eyetracking in the MEG Lab
-MEG stimulus delivery and response monitoring
-Submitting Maxfilter-jobs
+Jupyter notebook
 Getting started with mne-python on hyades
-Freesurfer
-Matlab: Getting Started
+Running Matlab on your own computer
 SPM tips and tricks
-Remote Desktop Hyades problems
 Data Processor Agreement As Processor
-VPN RegionMidt PIN code
 Matlab install linux
-LCmodel
 Stormdb Pipeline Configuration GUI
-Diffusion Pipeline Unring
 Diffusion Pipeline Eddy Example
-Stormdb Pipeline: Fine Grained Control through SPM
-Mrtrix3
-SPM for M/EEG
-TPMLS
-TPMPO2
-Matlab git repository
-Git Cheat Sheet for Developers
-Electric stimulator
-VPN RegionMidt Mac
-VPN RegionMidt Windows 10
-VPN RegionMidt Linux (OpenConnect method)
-Affiliations
-Cluster guide
-E-Prime
 Eye tracking: EyeLink1000
 FSL on the cluster
 Firefox on Hyades machine has stopped
@@ -52,10 +18,5 @@ List of Categories
 Longitudinal VBM
 MP2RAGE to Nifti to Dicom
 MRI aquisition practicalities
-Maxfilter MIB
-Polhemus Fasttrack Digitizer
-StormDb edit project
-Stormdb std General Requirements
-The Wiki Wizards
 Wiki Clean-up 3rd of June 2022
 Writing Matlab Code for the Cluster
